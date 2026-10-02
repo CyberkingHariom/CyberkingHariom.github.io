@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import ScrollReveal from '@/components/ScrollReveal';
 
 const LINKS = [
   { href: '#home', label: 'HOME' },
@@ -36,10 +37,10 @@ export default function Navbar() {
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div onClick={() => go('#home')} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-          <img src="/avatar.jpg" alt="TCI" style={{ width: 32, height: 32, objectFit: 'cover', border: '1px solid rgba(0,245,255,0.5)', boxShadow: '0 0 10px rgba(0,245,255,0.3)' }} />
+          <img src="/avatar.jpg" alt="TCI" className="avatar-round" style={{ width: 36, height: 36, objectFit: 'cover' }} />
           <div>
             <div style={{ fontFamily: 'Orbitron, monospace', fontWeight: 900, fontSize: 12, color: '#00F5FF', letterSpacing: '0.15em', lineHeight: 1.2 }}>THE CYBER INDIA</div>
-            <div style={{ fontFamily: 'Share Tech Mono, monospace', fontSize: 8, color: 'rgba(0,245,255,0.4)', letterSpacing: '0.2em' }}>CYBER INTELLIGENCE UNIT</div>
+            <div style={{ fontFamily: 'Share Tech Mono', fontSize: 7, color: 'rgba(0,245,255,0.4)', letterSpacing: '0.2em' }}>CYBER INTELLIGENCE UNIT</div>
           </div>
         </div>
 
@@ -47,7 +48,7 @@ export default function Navbar() {
           {LINKS.map(l => (
             <button key={l.href} onClick={() => go(l.href)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              fontFamily: 'Share Tech Mono, monospace', fontSize: 10, letterSpacing: '0.15em',
+              fontFamily: 'Share Tech Mono', fontSize: 10, letterSpacing: '0.15em',
               color: active === l.href.slice(1) ? '#00F5FF' : 'rgba(240,246,252,0.4)',
               transition: 'color 0.2s', padding: '4px 0',
               borderBottom: active === l.href.slice(1) ? '1px solid #00F5FF' : '1px solid transparent',
@@ -57,14 +58,13 @@ export default function Navbar() {
               {l.label}
             </button>
           ))}
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF41', boxShadow: '0 0 8px #00FF41', animation: 'pulse-dot 2s infinite' }} />
+          <div className="status-active" style={{ width: 6, height: 6, borderRadius: '50%', background: '#00FF41', boxShadow: '0 0 8px #00FF41' }} />
         </div>
 
         <button onClick={() => setOpen(!open)} className="mobile-toggle" style={{ display: 'none', background: 'none', border: '1px solid rgba(0,245,255,0.3)', padding: '6px 10px', cursor: 'pointer', color: '#00F5FF', fontFamily: 'Share Tech Mono', fontSize: 14 }}>
           {open ? '✕' : '☰'}
         </button>
       </div>
-
       {open && (
         <div style={{ background: 'rgba(0,5,8,0.98)', borderTop: '1px solid rgba(0,245,255,0.1)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
           {LINKS.map(l => (
@@ -74,10 +74,7 @@ export default function Navbar() {
           ))}
         </div>
       )}
-
-      <style>{`
-        @media(max-width:768px){.desktop-nav{display:none!important}.mobile-toggle{display:block!important}}
-      `}</style>
+      <style>{`@media(max-width:768px){.desktop-nav{display:none!important}.mobile-toggle{display:block!important}}`}</style>
     </nav>
   );
 }
