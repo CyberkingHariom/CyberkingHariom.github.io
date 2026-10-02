@@ -12,14 +12,16 @@ const CONTACT_REASONS = [
 ];
 
 const CONTACT_INFO = [
-  { icon: '📧', label: 'OFFICIAL EMAIL', value: 'hariomsingh2706@gmail.com', link: 'mailto:hariomsingh2706@gmail.com', color: '#00F5FF' },
+  { icon: '📧', label: 'OFFICIAL EMAIL', value: 'thecyberindia.official@gmail.com
+', link: 'mailto:thecyberindia.official@gmail.com
+', color: '#00F5FF' },
   { icon: '📱', label: 'PHONE / WHATSAPP DIRECT', value: '+91 84710 71945', link: 'https://wa.me/918471071945', color: '#00FF41' },
   { icon: '🌐', label: 'CENTRAL PLATFORM', value: 'thecyberindia.me', link: 'https://thecyberindia.me', color: '#FF9933' },
 ];
 
 const SOCIAL_LINKS = [
   { icon: '🔗', label: 'LinkedIn', url: 'https://linkedin.com/in/hariom-singh-' },
-  { icon: '⌥', label: 'GitHub', url: 'https://github.com/mrcyb4r' },
+  { icon: '⌥', label: 'GitHub', url: 'https://github.com/thecyberindia' },
   { icon: '▶', label: 'YouTube', url: 'https://youtube.com/@thecyberindia' },
   { icon: '📸', label: 'Instagram', url: 'https://instagram.com/thecyberindia' },
 ];
