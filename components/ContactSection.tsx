@@ -12,9 +12,7 @@ const CONTACT_REASONS = [
 ];
 
 const CONTACT_INFO = [
-  { icon: '📧', label: 'OFFICIAL EMAIL', value: 'thecyberindia.official@gmail.com
-', link: 'mailto:thecyberindia.official@gmail.com
-', color: '#00F5FF' },
+  { icon: '📧', label: 'OFFICIAL EMAIL', value: 'thecyberindia.official@gmail.com', link: 'mailto:thecyberindia.official@gmail.com', color: '#00F5FF' },
   { icon: '📱', label: 'PHONE / WHATSAPP DIRECT', value: '+91 84710 71945', link: 'https://wa.me/918471071945', color: '#00FF41' },
   { icon: '🌐', label: 'CENTRAL PLATFORM', value: 'thecyberindia.me', link: 'https://thecyberindia.me', color: '#FF9933' },
 ];
