@@ -150,32 +150,46 @@ export default function HeroSection() {
           <span style={{ width:5, height:5, borderRadius:'50%', background:'#00FF41', display:'inline-block', boxShadow:'0 0 6px #00FF41', animation:'pulse-dot 1.4s ease-in-out infinite' }} />
         </div>
 
-        {/* ── PHOTO SLOT ── */}
-        <div style={{ display:'flex', justifyContent:'center', marginBottom:32 }}>
-          <div style={{ position:'relative', width:140, height:140 }}>
-            {/* Orbit rings */}
-            <div style={{ position:'absolute', inset:-20, border:'1px solid rgba(0,245,255,0.15)', borderRadius:'50%', animation:'orbit-spin 8s linear infinite' }} />
-            <div style={{ position:'absolute', inset:-36, border:'1px solid rgba(0,255,65,0.1)', borderRadius:'50%', animation:'orbit-spin 14s linear infinite reverse' }} />
-            {/* Photo — replace /avatar.jpg with your actual image path */}
+        {/* ── BIG PROFILE PHOTO — The Cyber India Logo ── */}
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:36 }}>
+          <div style={{ position:'relative', width:220, height:220, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            {/* Tricolor rotating ring — saffron+white+green */}
+            <div style={{
+              position:'absolute', inset:-6, borderRadius:'50%',
+              background:'conic-gradient(#FF9933 0deg 120deg, #ffffff 120deg 240deg, #138808 240deg 360deg)',
+              animation:'orbit-spin 3s linear infinite',
+              padding:3,
+            }} />
+            {/* White gap ring */}
+            <div style={{ position:'absolute', inset:-2, borderRadius:'50%', background:'#030508' }} />
+            {/* Outer cyber pulse ring */}
+            <div style={{ position:'absolute', inset:-18, borderRadius:'50%', border:'1px solid rgba(0,245,255,0.25)', animation:'orbit-spin 10s linear infinite reverse' }} />
+            <div style={{ position:'absolute', inset:-32, borderRadius:'50%', border:'1px solid rgba(255,153,51,0.15)', animation:'orbit-spin 18s linear infinite' }} />
+            {/* Radar sweep */}
+            <div style={{
+              position:'absolute', inset:-6, borderRadius:'50%',
+              background:'conic-gradient(rgba(0,245,255,0.15) 0deg 60deg, transparent 60deg 360deg)',
+              animation:'orbit-spin 4s linear infinite',
+            }} />
+            {/* The photo — circular */}
             <img
-              src="/avatar.jpg"
-              alt="Hariom Singh — The Cyber India"
-              style={{ width:140, height:140, objectFit:'cover', border:'2px solid rgba(0,245,255,0.5)', boxShadow:'0 0 40px rgba(0,245,255,0.2)', display:'block', borderRadius:0 }}
+              src="/profile.jpg"
+              alt="The Cyber India"
+              style={{
+                width:220, height:220, objectFit:'cover',
+                borderRadius:'50%',
+                position:'relative', zIndex:2,
+                boxShadow:'0 0 60px rgba(255,153,51,0.25), 0 0 30px rgba(0,245,255,0.15)',
+              }}
               onError={e => {
                 const t = e.currentTarget as HTMLImageElement;
-                t.style.display = 'none';
-                const p = t.nextElementSibling as HTMLElement;
-                if (p) p.style.display = 'flex';
+                t.src = '/avatar.jpg';
               }}
             />
-            {/* Fallback placeholder shown when avatar.jpg is missing */}
-            <div style={{ display:'none', width:140, height:140, background:'linear-gradient(135deg,#001A22,#002A38)', border:'2px solid rgba(0,245,255,0.4)', flexDirection:'column', alignItems:'center', justifyContent:'center', position:'absolute', top:0, left:0 }}>
-              <span style={{ fontSize:36, marginBottom:6 }}>🪖</span>
-              <span style={{ fontFamily:'Share Tech Mono', fontSize:8, letterSpacing:'0.2em', color:'rgba(0,245,255,0.5)' }}>PHOTO SLOT</span>
-            </div>
-            {/* Labels */}
-            <div style={{ position:'absolute', top:-20, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:7, color:'rgba(0,245,255,0.45)', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>[ ID VERIFIED ]</div>
-            <div style={{ position:'absolute', bottom:-20, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:7, color:'rgba(0,255,65,0.6)', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>CLEARANCE: ALPHA</div>
+            {/* ID badge top */}
+            <div style={{ position:'absolute', top:-44, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:8, color:'rgba(255,153,51,0.7)', letterSpacing:'0.15em', whiteSpace:'nowrap', border:'1px solid rgba(255,153,51,0.2)', padding:'3px 10px' }}>[ THE CYBER INDIA ]</div>
+            {/* Clearance badge bottom */}
+            <div style={{ position:'absolute', bottom:-44, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:8, color:'rgba(0,255,65,0.7)', letterSpacing:'0.15em', whiteSpace:'nowrap', border:'1px solid rgba(0,255,65,0.2)', padding:'3px 10px' }}>◉ CLEARANCE: ALPHA</div>
           </div>
         </div>
 
