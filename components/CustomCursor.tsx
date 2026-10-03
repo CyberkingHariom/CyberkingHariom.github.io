@@ -1,75 +1,70 @@
 'use client';
-
 import { useEffect, useRef } from 'react';
 
 export default function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-  const trailRef = useRef<{ x: number; y: number }[]>([]);
-  const posRef = useRef({ x: -100, y: -100 });
-  const ringPosRef = useRef({ x: -100, y: -100 });
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const posRef = useRef({ x: -200, y: -200 });
+  const smoothRef = useRef({ x: -200, y: -200 });
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    // Hide on mobile
     if (window.innerWidth < 768) return;
 
-    const dot = dotRef.current;
-    const ring = ringRef.current;
-    if (!dot || !ring) return;
+    const cursor = cursorRef.current;
+    if (!cursor) return;
 
-    const onMouseMove = (e: MouseEvent) => {
+    const onMove = (e: MouseEvent) => {
       posRef.current = { x: e.clientX, y: e.clientY };
     };
+    window.addEventListener('mousemove', onMove);
 
-    const onMouseEnterLink = () => {
-      ring?.classList.add('hovering');
-    };
-    const onMouseLeaveLink = () => {
-      ring?.classList.remove('hovering');
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-
-    // Add hover detection to interactive elements
-    const addHoverListeners = () => {
-      document.querySelectorAll('a, button, [data-cursor-hover]').forEach((el) => {
-        el.addEventListener('mouseenter', onMouseEnterLink);
-        el.addEventListener('mouseleave', onMouseLeaveLink);
+    // Scale up on hover
+    const onEnter = () => { if (cursor) cursor.style.transform = 'translate(-50%,-50%) scale(1.5)'; };
+    const onLeave = () => { if (cursor) cursor.style.transform = 'translate(-50%,-50%) scale(1)'; };
+    const attach = () => {
+      document.querySelectorAll('a,button,[data-cursor-hover]').forEach(el => {
+        el.addEventListener('mouseenter', onEnter);
+        el.addEventListener('mouseleave', onLeave);
       });
     };
-    addHoverListeners();
-
-    // Observe DOM changes to add listeners to new elements
-    const observer = new MutationObserver(addHoverListeners);
-    observer.observe(document.body, { childList: true, subtree: true });
+    attach();
+    const obs = new MutationObserver(attach);
+    obs.observe(document.body, { childList: true, subtree: true });
 
     const animate = () => {
-      // Dot follows cursor exactly
-      dot.style.left = `${posRef.current.x}px`;
-      dot.style.top = `${posRef.current.y}px`;
-
-      // Ring follows with lag
-      ringPosRef.current.x += (posRef.current.x - ringPosRef.current.x) * 0.12;
-      ringPosRef.current.y += (posRef.current.y - ringPosRef.current.y) * 0.12;
-      ring.style.left = `${ringPosRef.current.x}px`;
-      ring.style.top = `${ringPosRef.current.y}px`;
-
+      smoothRef.current.x += (posRef.current.x - smoothRef.current.x) * 0.18;
+      smoothRef.current.y += (posRef.current.y - smoothRef.current.y) * 0.18;
+      if (cursor) {
+        cursor.style.left = smoothRef.current.x + 'px';
+        cursor.style.top  = smoothRef.current.y + 'px';
+      }
       rafRef.current = requestAnimationFrame(animate);
     };
     animate();
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      observer.disconnect();
+      window.removeEventListener('mousemove', onMove);
+      obs.disconnect();
       cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
   return (
-    <>
-      <div ref={dotRef} className="cursor-dot" />
-      <div ref={ringRef} className="cursor-ring" />
-    </>
+    <div
+      ref={cursorRef}
+      style={{
+        position: 'fixed',
+        pointerEvents: 'none',
+        zIndex: 999999,
+        transform: 'translate(-50%,-50%)',
+        fontSize: 22,
+        lineHeight: 1,
+        userSelect: 'none',
+        transition: 'transform 0.15s ease',
+        filter: 'drop-shadow(0 0 6px rgba(0,245,255,0.7))',
+      }}
+    >
+      🐭
+    </div>
   );
 }
