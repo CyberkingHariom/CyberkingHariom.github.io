@@ -4,18 +4,8 @@ import { useEffect, useState } from 'react';
 export default function LoadingScreen({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [sparks, setSparks] = useState<{id:number,x:number,y:number,r:number,delay:number}[]>([]);
 
   useEffect(() => {
-    // Generate electric sparks
-    setSparks(Array.from({ length: 18 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      r: Math.random() * 3 + 1,
-      delay: Math.random() * 2,
-    })));
-
     // Progress bar
     let p = 0;
     const pInterval = setInterval(() => {
@@ -44,36 +34,25 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
       transform: phase === 3 ? 'scale(1.05)' : 'scale(1)',
     }}>
 
-      {/* Electric sparks */}
-      {sparks.map(s => (
-        <div key={s.id} style={{
+      {/* Soft floating particles */}
+      {Array.from({ length: 30 }, (_, i) => (
+        <div key={i} style={{
           position: 'absolute',
-          left: `${s.x}%`, top: `${s.y}%`,
-          width: s.r * 2, height: s.r * 2,
+          left: `${(i * 37 + 5) % 100}%`,
+          top: `${(i * 53 + 10) % 100}%`,
+          width: (i % 3) + 1,
+          height: (i % 3) + 1,
           borderRadius: '50%',
-          background: s.id % 3 === 0 ? '#00F5FF' : s.id % 3 === 1 ? '#00FF41' : '#FF003C',
-          boxShadow: `0 0 ${s.r * 6}px currentColor`,
-          animation: `spark-blink ${1 + s.delay}s ease-in-out infinite`,
-          animationDelay: `${s.delay}s`,
+          background: i % 2 === 0 ? 'rgba(0,245,255,0.35)' : 'rgba(0,255,65,0.25)',
+          animation: `float-particle ${3 + (i % 4)}s ease-in-out infinite`,
+          animationDelay: `${(i * 0.3) % 3}s`,
         }} />
       ))}
-
-      {/* Lightning bolts */}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.12, pointerEvents: 'none' }}>
-        {[...Array(6)].map((_, i) => (
-          <line key={i}
-            x1={`${10 + i * 15}%`} y1="0%"
-            x2={`${5 + i * 16}%`} y2="100%"
-            stroke="#00F5FF" strokeWidth="0.5"
-            style={{ animation: `lightning-flash 2s ${i * 0.3}s infinite` }}
-          />
-        ))}
-      </svg>
 
       {/* Center content */}
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 24px' }}>
 
-        {/* Cyber ring */}
+        {/* Cyber ring — no lightning icon */}
         <div style={{ position: 'relative', width: 140, height: 140, margin: '0 auto 32px' }}>
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
@@ -93,7 +72,10 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
             background: 'radial-gradient(circle, rgba(0,245,255,0.1) 0%, transparent 70%)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <span style={{ fontSize: 42 }}>⚡</span>
+            <span style={{
+              fontFamily: 'Orbitron, monospace', fontSize: 13, fontWeight: 700,
+              color: '#00F5FF', letterSpacing: '0.15em',
+            }}>TCI</span>
           </div>
         </div>
 
@@ -117,7 +99,6 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
           background: 'linear-gradient(135deg, #00F5FF, #00FF41)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           letterSpacing: '0.06em',
-          textShadow: 'none',
           opacity: phase >= 1 ? 1 : 0,
           transform: phase >= 1 ? 'translateY(0)' : 'translateY(20px)',
           transition: 'all 0.6s ease 0.2s',
@@ -153,11 +134,10 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
         </div>
       </div>
 
-      <style>{`
-        @keyframes spark-blink { 0%,100%{opacity:0.2;transform:scale(1)} 50%{opacity:1;transform:scale(1.5)} }
-        @keyframes lightning-flash { 0%,90%,100%{opacity:0} 91%,95%{opacity:1} }
+      <style>{\`
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-      `}</style>
+        @keyframes float-particle { 0%,100%{opacity:0.2;transform:translateY(0)} 50%{opacity:0.7;transform:translateY(-8px)} }
+      \`}</style>
     </div>
   );
 }
