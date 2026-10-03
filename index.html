@@ -53,6 +53,52 @@ section{position:relative;min-height:100vh;overflow:hidden;}
 /* HERO */
 #hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;}
 #hero-canvas{position:absolute;inset:0;}
+/* HUD corners */
+.hud-corner{position:absolute;width:60px;height:60px;z-index:3;pointer-events:none;}
+.hud-corner.tl{top:80px;left:24px;border-top:1px solid var(--cyan);border-left:1px solid var(--cyan);}
+.hud-corner.tr{top:80px;right:24px;border-top:1px solid var(--cyan);border-right:1px solid var(--cyan);}
+.hud-corner.bl{bottom:24px;left:24px;border-bottom:1px solid var(--cyan);border-left:1px solid var(--cyan);}
+.hud-corner.br{bottom:24px;right:24px;border-bottom:1px solid var(--cyan);border-right:1px solid var(--cyan);}
+.hud-corner-dot{position:absolute;width:4px;height:4px;background:var(--cyan);border-radius:50%;}
+.hud-corner.tl .hud-corner-dot{top:-2px;left:-2px;}
+.hud-corner.tr .hud-corner-dot{top:-2px;right:-2px;}
+.hud-corner.bl .hud-corner-dot{bottom:-2px;left:-2px;}
+.hud-corner.br .hud-corner-dot{bottom:-2px;right:-2px;}
+/* side panels */
+.hero-side{position:absolute;top:50%;transform:translateY(-50%);z-index:3;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.hero-side.left{left:32px;align-items:flex-start;}
+.hero-side.right{right:32px;align-items:flex-end;}
+.side-item{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;color:#335566;}
+.side-item span{color:var(--cyan);}
+.side-bar{height:1px;background:linear-gradient(90deg,var(--cyan),transparent);width:80px;margin:4px 0;}
+.side-bar.rev{background:linear-gradient(270deg,var(--cyan),transparent);}
+/* scan line */
+.scan-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,.4),transparent);animation:scan 4s linear infinite;z-index:3;pointer-events:none;}
+@keyframes scan{0%{top:10%;}100%{top:90%;}}
+/* orbit rings around photo */
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid;animation:orbit-spin linear infinite;}
+.orbit-ring:nth-child(1){width:200px;height:200px;border-color:rgba(0,245,255,.2);animation-duration:8s;}
+.orbit-ring:nth-child(2){width:240px;height:240px;border-color:rgba(0,255,136,.15);animation-duration:12s;animation-direction:reverse;}
+.orbit-ring:nth-child(3){width:280px;height:280px;border-color:rgba(255,153,51,.1);animation-duration:18s;}
+.orbit-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--cyan);top:50%;left:-2.5px;transform-origin:calc(100px + 2.5px) 50%;}
+.orbit-ring:nth-child(2) .orbit-dot{background:var(--green);transform-origin:calc(120px + 2.5px) 50%;}
+@keyframes orbit-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.photo-center{position:relative;display:flex;align-items:center;justify-content:center;width:280px;height:280px;margin:0 auto 24px;}
+/* glitch title */
+.hero-title{font-family:'Orbitron',sans-serif;font-size:clamp(32px,8vw,90px);font-weight:900;letter-spacing:.15em;line-height:1;background:linear-gradient(135deg,var(--white) 0%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px;position:relative;}
+.hero-title::before,.hero-title::after{content:attr(data-text);position:absolute;top:0;left:0;right:0;-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-title::before{background:linear-gradient(135deg,var(--red),transparent);clip-path:polygon(0 30%,100% 30%,100% 50%,0 50%);animation:glitch1 4s infinite;}
+.hero-title::after{background:linear-gradient(135deg,var(--cyan),transparent);clip-path:polygon(0 60%,100% 60%,100% 75%,0 75%);animation:glitch2 4s infinite;}
+@keyframes glitch1{0%,90%,100%{transform:translateX(0);}92%{transform:translateX(-3px);}94%{transform:translateX(3px);}96%{transform:translateX(-2px);}}
+@keyframes glitch2{0%,88%,100%{transform:translateX(0);}90%{transform:translateX(3px);}93%{transform:translateX(-3px);}}
+/* status bar bottom */
+.hero-status{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;gap:32px;z-index:3;pointer-events:none;}
+.status-item{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.3em;color:#335566;display:flex;align-items:center;gap:6px;}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse .8s ease-in-out infinite;}
+.status-item:nth-child(2) .status-dot{animation-delay:.3s;}
+.status-item:nth-child(3) .status-dot{animation-delay:.6s;}
+#hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;}
+#hero-canvas{position:absolute;inset:0;}
 .hero-content{position:relative;z-index:2;}
 .hero-sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.6em;color:var(--cyan);margin-bottom:20px;opacity:.7;}
 .hero-title{font-family:'Orbitron',sans-serif;font-size:clamp(32px,8vw,90px);font-weight:900;letter-spacing:.15em;line-height:1;background:linear-gradient(135deg,var(--white) 0%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px;}
@@ -259,19 +305,73 @@ section{position:relative;min-height:100vh;overflow:hidden;}
 <!-- HERO -->
 <section id="hero">
   <canvas id="hero-canvas"></canvas>
+
+  <!-- HUD corners -->
+  <div class="hud-corner tl"><div class="hud-corner-dot"></div></div>
+  <div class="hud-corner tr"><div class="hud-corner-dot"></div></div>
+  <div class="hud-corner bl"><div class="hud-corner-dot"></div></div>
+  <div class="hud-corner br"><div class="hud-corner-dot"></div></div>
+
+  <!-- scan line -->
+  <div class="scan-line"></div>
+
+  <!-- Left side panel -->
+  <div class="hero-side left">
+    <div class="side-item">SYS · <span>ACTIVE</span></div>
+    <div class="side-bar"></div>
+    <div class="side-item">NODE · <span>047</span></div>
+    <div class="side-item">SIGNAL · <span>98%</span></div>
+    <div class="side-bar"></div>
+    <div class="side-item">LAYER · <span>CYBER</span></div>
+    <div class="side-item">PROTO · <span>TCI</span></div>
+    <div class="side-bar"></div>
+    <div class="side-item">SECURE · <span>ON</span></div>
+    <div class="side-item">ENC · <span>AES-256</span></div>
+  </div>
+
+  <!-- Right side panel -->
+  <div class="hero-side right">
+    <div class="side-item"><span>OSINT</span> · MODULE</div>
+    <div class="side-bar rev"></div>
+    <div class="side-item"><span>RECON</span> · ACTIVE</div>
+    <div class="side-item"><span>INTEL</span> · LIVE</div>
+    <div class="side-bar rev"></div>
+    <div class="side-item"><span>FORENSIC</span> · RDY</div>
+    <div class="side-item"><span>ANALYSIS</span> · ON</div>
+    <div class="side-bar rev"></div>
+    <div class="side-item"><span>THREAT</span> · LOW</div>
+    <div class="side-item"><span>NET</span> · SECURE</div>
+  </div>
+
+  <!-- Center content -->
   <div class="hero-content">
-    <div class="army-photo-wrap" id="army-photo-wrap">
-      <!-- REPLACE WITH: <img src="your-army-photo.jpg" alt="Cyber India Army"> -->
-      <div class="army-photo-placeholder">
-        <span>🪖</span>
-        ARMY PHOTO
+    <!-- Orbit rings + photo -->
+    <div class="photo-center">
+      <div class="orbit-ring"><div class="orbit-dot"></div></div>
+      <div class="orbit-ring"><div class="orbit-dot"></div></div>
+      <div class="orbit-ring"></div>
+      <div class="army-photo-wrap" id="army-photo-wrap" style="position:absolute;">
+        <!-- REPLACE WITH: <img src="your-army-photo.jpg" alt="Cyber India Army"> -->
+        <div class="army-photo-placeholder">
+          <span>🪖</span>
+          ARMY PHOTO
+        </div>
       </div>
     </div>
+
     <div class="hero-sub">THE CYBER INDIA</div>
-    <h1 class="hero-title">CYBER<br/>INTELLIGENCE</h1>
+    <h1 class="hero-title" data-text="CYBER&#10;INTELLIGENCE">CYBER<br/>INTELLIGENCE</h1>
     <div class="hero-tag">INTELLIGENCE · INVESTIGATION · SECURITY · TECHNOLOGY</div>
     <button class="enter-btn" id="enter-btn"><span>[ ENTER NETWORK ]</span></button>
   </div>
+
+  <!-- Status bar -->
+  <div class="hero-status">
+    <div class="status-item"><div class="status-dot"></div>NETWORK ONLINE</div>
+    <div class="status-item"><div class="status-dot"></div>SIGNAL ACTIVE</div>
+    <div class="status-item"><div class="status-dot"></div>SECURE CHANNEL</div>
+  </div>
+
   <div class="radar-wrap">
     <div class="radar-circle"></div>
     <div class="radar-circle"></div>
