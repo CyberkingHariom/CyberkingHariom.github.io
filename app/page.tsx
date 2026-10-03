@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import LoadingScreen from '@/components/LoadingScreen';
 import GlobeBg from '@/components/GlobeBg';
-import MatrixRain from '@/components/MatrixRain';
+import CustomCursor from '@/components/CustomCursor';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
@@ -24,7 +24,7 @@ export default function Home() {
         transition: 'opacity 0.8s ease',
         paddingBottom: 32,
       }}>
-        <MatrixRain />
+        <CustomCursor />
         <GlobeBg />
         <div className="scanline" />
         <Navbar />
