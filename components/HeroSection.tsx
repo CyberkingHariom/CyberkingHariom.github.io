@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const ROLES = [
   'CYBERCRIME INVESTIGATOR',
@@ -16,15 +16,18 @@ export default function HeroSection() {
   const [del, setDel] = useState(false);
   const [show, setShow] = useState(false);
   const [time, setTime] = useState('');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  /* Live clock */
   useEffect(() => {
     setShow(true);
     const tick = setInterval(() => {
-      setTime(new Date().toISOString().replace('T', ' ').slice(0, 19) + ' IST');
+      setTime(new Date().toISOString().replace('T',' ').slice(0,19) + ' IST');
     }, 1000);
     return () => clearInterval(tick);
   }, []);
 
+  /* Typewriter */
   useEffect(() => {
     const cur = ROLES[idx];
     const t = setTimeout(() => {
@@ -39,99 +42,217 @@ export default function HeroSection() {
     return () => clearTimeout(t);
   }, [typed, del, idx]);
 
+  /* Particle canvas */
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext('2d')!;
+    let animId: number;
+    const resize = () => { c.width = c.offsetWidth; c.height = c.offsetHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const pts = Array.from({ length: 120 }, () => ({
+      x: Math.random() * c.width, y: Math.random() * c.height,
+      vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 1.5 + 0.4,
+      col: Math.random() > 0.6 ? '0,245,255' : '0,255,65',
+    }));
+
+    const draw = () => {
+      ctx.clearRect(0, 0, c.width, c.height);
+      // grid
+      ctx.strokeStyle = 'rgba(0,245,255,0.03)'; ctx.lineWidth = 1;
+      for (let x = 0; x < c.width; x += 80) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,c.height); ctx.stroke(); }
+      for (let y = 0; y < c.height; y += 80) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(c.width,y); ctx.stroke(); }
+      // particles + connections
+      pts.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > c.width) p.vx *= -1;
+        if (p.y < 0 || p.y > c.height) p.vy *= -1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.col},0.6)`; ctx.fill();
+      });
+      pts.forEach((a, i) => pts.slice(i+1).forEach(b => {
+        const d = Math.hypot(a.x-b.x, a.y-b.y);
+        if (d < 100) {
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle = `rgba(0,245,255,${0.12*(1-d/100)})`; ctx.lineWidth=0.5; ctx.stroke();
+        }
+      }));
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
+  }, []);
+
   return (
-    <section id="home" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 24px 60px', position: 'relative', overflow: 'hidden', zIndex: 2 }}>
+    <section id="home" style={{ minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'80px 24px 60px', position:'relative', overflow:'hidden', zIndex:2 }}>
 
-      {/* HUD scan line */}
-      <div style={{ position: 'absolute', left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg,transparent,rgba(0,245,255,0.5),transparent)', animation: 'scan-bar 4s linear infinite', zIndex: 3 }} />
+      {/* Particle canvas */}
+      <canvas ref={canvasRef} style={{ position:'absolute', inset:0, width:'100%', height:'100%', zIndex:0 }} />
 
-      {/* Corner brackets */}
-      {['top-0 left-0','top-0 right-0','bottom-0 left-0','bottom-0 right-0'].map((pos,i) => (
+      {/* Scan line */}
+      <div style={{ position:'absolute', left:0, right:0, height:'2px', background:'linear-gradient(90deg,transparent,rgba(0,245,255,0.4),transparent)', animation:'scan-bar 4s linear infinite', zIndex:3, pointerEvents:'none' }} />
+
+      {/* Corner HUD brackets */}
+      {[0,1,2,3].map(i => (
         <div key={i} style={{
-          position:'absolute', width:40, height:40,
-          top: i<2?20:'auto', bottom:i>=2?20:'auto',
-          left: i%2===0?20:'auto', right: i%2===1?20:'auto',
-          borderTop: i<2?'1px solid rgba(0,245,255,0.3)':'none',
-          borderBottom: i>=2?'1px solid rgba(0,245,255,0.3)':'none',
-          borderLeft: i%2===0?'1px solid rgba(0,245,255,0.3)':'none',
-          borderRight: i%2===1?'1px solid rgba(0,245,255,0.3)':'none',
+          position:'absolute', width:48, height:48, zIndex:3, pointerEvents:'none',
+          top:i<2?72:'auto', bottom:i>=2?16:'auto',
+          left:i%2===0?16:'auto', right:i%2===1?16:'auto',
+          borderTop:i<2?'1px solid rgba(0,245,255,0.35)':'none',
+          borderBottom:i>=2?'1px solid rgba(0,245,255,0.35)':'none',
+          borderLeft:i%2===0?'1px solid rgba(0,245,255,0.35)':'none',
+          borderRight:i%2===1?'1px solid rgba(0,245,255,0.35)':'none',
         }} />
       ))}
 
-      {/* System clock */}
-      <div style={{ position:'absolute', top:80, right:24, fontFamily:'Share Tech Mono,monospace', fontSize:9, color:'rgba(0,245,255,0.3)', letterSpacing:'0.1em', textAlign:'right' }}>
+      {/* System clock top-right */}
+      <div style={{ position:'absolute', top:80, right:24, fontFamily:'Share Tech Mono,monospace', fontSize:9, color:'rgba(0,245,255,0.3)', letterSpacing:'0.1em', textAlign:'right', zIndex:4, lineHeight:1.9 }}>
         <div>SYS_CLOCK: {time}</div>
         <div>NODE: TCI-GORAKHPUR-001</div>
-        <div style={{color:'rgba(0,255,65,0.5)'}}>STATUS: [ACTIVE]</div>
+        <div style={{ color:'rgba(0,255,65,0.5)' }}>STATUS: [ACTIVE]</div>
       </div>
 
-      <div style={{ position:'relative', zIndex:2, textAlign:'center', maxWidth:860, animation: show?'fade-in-up 0.8s ease forwards':'none', opacity:0 }}>
-        {/* System init text */}
-        <div style={{ fontFamily:'Share Tech Mono,monospace', fontSize:9, color:'rgba(0,245,255,0.35)', letterSpacing:'0.2em', marginBottom:20, lineHeight:1.8 }}>
+      {/* Left side status bar */}
+      <div style={{ position:'absolute', left:20, top:'50%', transform:'translateY(-50%)', display:'flex', flexDirection:'column', gap:10, zIndex:4, pointerEvents:'none' }}>
+        {[['SYS','ONLINE'],['ENC','AES-256'],['NET','SECURE'],['OSINT','READY'],['INTEL','LIVE']].map(([k,v]) => (
+          <div key={k} style={{ fontFamily:'Share Tech Mono,monospace', fontSize:8, letterSpacing:'0.15em', color:'rgba(0,245,255,0.25)' }}>
+            {k} · <span style={{ color:'rgba(0,245,255,0.6)' }}>{v}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Right side status bar */}
+      <div style={{ position:'absolute', right:20, top:'50%', transform:'translateY(-50%)', display:'flex', flexDirection:'column', gap:10, zIndex:4, pointerEvents:'none', alignItems:'flex-end' }}>
+        {[['OSINT','MOD'],['RECON','ACT'],['FORENSIC','RDY'],['THREAT','LOW'],['SIGNAL','98%']].map(([k,v]) => (
+          <div key={k} style={{ fontFamily:'Share Tech Mono,monospace', fontSize:8, letterSpacing:'0.15em', color:'rgba(0,245,255,0.25)' }}>
+            <span style={{ color:'rgba(0,255,65,0.5)' }}>{k}</span> · {v}
+          </div>
+        ))}
+      </div>
+
+      {/* ══════════ MAIN CONTENT ══════════ */}
+      <div style={{ position:'relative', zIndex:5, textAlign:'center', maxWidth:900, opacity: show?1:0, transform: show?'translateY(0)':'translateY(30px)', transition:'opacity 0.9s ease, transform 0.9s ease' }}>
+
+        {/* Boot text */}
+        <div style={{ fontFamily:'Share Tech Mono,monospace', fontSize:9, color:'rgba(0,245,255,0.3)', letterSpacing:'0.2em', marginBottom:24, lineHeight:1.9 }}>
           <div>{'>'} INITIALIZING TCI COMMAND INTERFACE...</div>
-          <div>{'>'} OSINT ENGINE: ONLINE</div>
-          <div style={{color:'rgba(0,255,65,0.5)'}}>{'>'} ARMY CYBER CELL LINK: ESTABLISHED ✓</div>
+          <div>{'>'} OSINT ENGINE: <span style={{ color:'rgba(0,255,65,0.6)' }}>ONLINE ✓</span></div>
+          <div>{'>'} ARMY CYBER CELL LINK: <span style={{ color:'rgba(0,255,65,0.6)' }}>ESTABLISHED ✓</span></div>
         </div>
 
         {/* Status badge */}
-        <div style={{ display:'inline-flex', alignItems:'center', gap:8, marginBottom:28, fontFamily:'Share Tech Mono,monospace', fontSize:9, letterSpacing:'0.2em', color:'#00FF41', border:'1px solid rgba(0,255,65,0.25)', background:'rgba(0,255,65,0.04)', padding:'6px 16px' }}>
-          <span className="status-active" style={{ width:5, height:5, borderRadius:'50%', background:'#00FF41', display:'inline-block' }} />
+        <div style={{ display:'inline-flex', alignItems:'center', gap:8, marginBottom:36, fontFamily:'Share Tech Mono,monospace', fontSize:9, letterSpacing:'0.2em', color:'#00FF41', border:'1px solid rgba(0,255,65,0.25)', background:'rgba(0,255,65,0.04)', padding:'6px 18px' }}>
+          <span style={{ width:5, height:5, borderRadius:'50%', background:'#00FF41', display:'inline-block', boxShadow:'0 0 6px #00FF41', animation:'pulse-dot 1.4s ease-in-out infinite' }} />
           OPERATOR: ONLINE — INDIA ARMY CYBER CELL SUPPORT ACTIVE
-          <span className="status-active" style={{ width:5, height:5, borderRadius:'50%', background:'#00FF41', display:'inline-block' }} />
+          <span style={{ width:5, height:5, borderRadius:'50%', background:'#00FF41', display:'inline-block', boxShadow:'0 0 6px #00FF41', animation:'pulse-dot 1.4s ease-in-out infinite' }} />
         </div>
 
-        {/* Avatar with HUD ring */}
-        <div style={{ display:'flex', justifyContent:'center', marginBottom:28 }}>
-          <div style={{ position:'relative', width:120, height:120 }}>
-            <img src="/avatar.jpg" alt="Hariom Singh — The Cyber India" style={{ width:120, height:120, objectFit:'cover', border:'2px solid rgba(0,245,255,0.4)', boxShadow:'0 0 30px rgba(0,245,255,0.15), inset 0 0 30px rgba(0,245,255,0.05)', display:'block' }} />
-            <div style={{ position:'absolute', inset:-8, border:'1px solid rgba(0,245,255,0.15)', animation:'none', borderRadius:0 }} />
-            <div style={{ position:'absolute', top:-12, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:7, color:'rgba(0,245,255,0.4)', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>[ ID VERIFIED ]</div>
-            <div style={{ position:'absolute', bottom:-14, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:7, color:'rgba(0,255,65,0.5)', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>CLEARANCE: ALPHA</div>
+        {/* ── PHOTO SLOT ── */}
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:32 }}>
+          <div style={{ position:'relative', width:140, height:140 }}>
+            {/* Orbit rings */}
+            <div style={{ position:'absolute', inset:-20, border:'1px solid rgba(0,245,255,0.15)', borderRadius:'50%', animation:'orbit-spin 8s linear infinite' }} />
+            <div style={{ position:'absolute', inset:-36, border:'1px solid rgba(0,255,65,0.1)', borderRadius:'50%', animation:'orbit-spin 14s linear infinite reverse' }} />
+            {/* Photo — replace /avatar.jpg with your actual image path */}
+            <img
+              src="/avatar.jpg"
+              alt="Hariom Singh — The Cyber India"
+              style={{ width:140, height:140, objectFit:'cover', border:'2px solid rgba(0,245,255,0.5)', boxShadow:'0 0 40px rgba(0,245,255,0.2)', display:'block', borderRadius:0 }}
+              onError={e => {
+                const t = e.currentTarget as HTMLImageElement;
+                t.style.display = 'none';
+                const p = t.nextElementSibling as HTMLElement;
+                if (p) p.style.display = 'flex';
+              }}
+            />
+            {/* Fallback placeholder shown when avatar.jpg is missing */}
+            <div style={{ display:'none', width:140, height:140, background:'linear-gradient(135deg,#001A22,#002A38)', border:'2px solid rgba(0,245,255,0.4)', flexDirection:'column', alignItems:'center', justifyContent:'center', position:'absolute', top:0, left:0 }}>
+              <span style={{ fontSize:36, marginBottom:6 }}>🪖</span>
+              <span style={{ fontFamily:'Share Tech Mono', fontSize:8, letterSpacing:'0.2em', color:'rgba(0,245,255,0.5)' }}>PHOTO SLOT</span>
+            </div>
+            {/* Labels */}
+            <div style={{ position:'absolute', top:-20, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:7, color:'rgba(0,245,255,0.45)', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>[ ID VERIFIED ]</div>
+            <div style={{ position:'absolute', bottom:-20, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:7, color:'rgba(0,255,65,0.6)', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>CLEARANCE: ALPHA</div>
           </div>
         </div>
 
-        {/* Glitch Title */}
-        <h1 className="glitch" data-text="THE CYBER INDIA" style={{ fontFamily:'Orbitron,monospace', fontWeight:900, fontSize:'clamp(32px,7vw,72px)', color:'#F0F6FC', letterSpacing:'0.06em', margin:'0 0 4px', position:'relative' }}>
-          THE CYBER INDIA
+        {/* ── BIG TITLE ── */}
+        <h1 style={{
+          fontFamily:'Orbitron,monospace', fontWeight:900,
+          fontSize:'clamp(40px,9vw,96px)',
+          letterSpacing:'0.08em', lineHeight:1,
+          background:'linear-gradient(135deg,#ffffff 0%,#00F5FF 50%,#00FF41 100%)',
+          WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent',
+          margin:'0 0 8px', textShadow:'none',
+          filter:'drop-shadow(0 0 20px rgba(0,245,255,0.3))',
+        }}>
+          THE CYBER
         </h1>
-        <div style={{ fontFamily:'Share Tech Mono', fontSize:10, letterSpacing:'0.25em', color:'rgba(0,245,255,0.4)', marginBottom:24 }}>
-          {'// '}CYBER INTELLIGENCE OPERATIONS — INDIA{'  //  '}FOUNDED BY HARIOM SINGH
+        <h1 style={{
+          fontFamily:'Orbitron,monospace', fontWeight:900,
+          fontSize:'clamp(40px,9vw,96px)',
+          letterSpacing:'0.08em', lineHeight:1,
+          background:'linear-gradient(135deg,#FF9933 0%,#ffffff 50%,#138808 100%)',
+          WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent',
+          margin:'0 0 12px',
+          filter:'drop-shadow(0 0 20px rgba(255,153,51,0.3))',
+        }}>
+          INDIA 🇮🇳
+        </h1>
+
+        {/* Subtitle */}
+        <div style={{ fontFamily:'Share Tech Mono,monospace', fontSize:11, letterSpacing:'0.3em', color:'rgba(0,245,255,0.45)', marginBottom:28, lineHeight:1.6 }}>
+          {'// '}CYBER INTELLIGENCE OPERATIONS — INDIA{'  ·  '}FOUNDED BY HARIOM SINGH
         </div>
 
-        {/* Typing */}
-        <div style={{ fontFamily:'Share Tech Mono', fontSize:'clamp(12px,2.5vw,16px)', letterSpacing:'0.15em', color:'#00F5FF', marginBottom:44, minHeight:24 }}>
+        {/* ── TYPEWRITER ROLE ── */}
+        <div style={{ fontFamily:'Share Tech Mono,monospace', fontSize:'clamp(13px,2.5vw,18px)', letterSpacing:'0.18em', color:'#00F5FF', marginBottom:44, minHeight:28 }}>
           <span style={{ color:'rgba(0,245,255,0.4)' }}>{'> ACTIVE_ROLE: '}</span>
-          {typed}<span style={{ animation:'blink 1s step-end infinite' }}>█</span>
+          {typed}
+          <span style={{ animation:'blink 1s step-end infinite', color:'#00F5FF' }}>█</span>
         </div>
 
-        {/* Stats bar */}
-        <div style={{ display:'flex', gap:2, justifyContent:'center', marginBottom:40, flexWrap:'wrap' }}>
+        {/* ── STATS ── */}
+        <div style={{ display:'flex', gap:2, justifyContent:'center', marginBottom:44, flexWrap:'wrap' }}>
           {[['500+','LEA PARTNERS'],['50+','CASES SOLVED'],['3','INTEL TOOLS'],['100%','ARMY VERIFIED']].map(([v,l]) => (
-            <div key={l} style={{ padding:'12px 20px', border:'1px solid rgba(0,245,255,0.1)', background:'rgba(0,245,255,0.03)', minWidth:100, textAlign:'center' }}>
-              <div style={{ fontFamily:'Orbitron,monospace', fontWeight:900, fontSize:18, color:'#00F5FF', letterSpacing:'0.05em' }}>{v}</div>
-              <div style={{ fontFamily:'Share Tech Mono', fontSize:8, color:'rgba(0,245,255,0.4)', letterSpacing:'0.15em', marginTop:2 }}>{l}</div>
+            <div key={l} style={{ padding:'14px 22px', border:'1px solid rgba(0,245,255,0.12)', background:'rgba(0,245,255,0.03)', minWidth:110, textAlign:'center' }}>
+              <div style={{ fontFamily:'Orbitron,monospace', fontWeight:900, fontSize:22, color:'#00F5FF', letterSpacing:'0.05em' }}>{v}</div>
+              <div style={{ fontFamily:'Share Tech Mono,monospace', fontSize:8, color:'rgba(0,245,255,0.4)', letterSpacing:'0.15em', marginTop:3 }}>{l}</div>
             </div>
           ))}
         </div>
 
-        {/* CTAs */}
-        <div style={{ display:'flex', gap:12, justifyContent:'center', flexWrap:'wrap' }}>
-          <button onClick={() => document.getElementById('capabilities')?.scrollIntoView({behavior:'smooth'})} style={{ fontFamily:'Share Tech Mono', fontSize:11, letterSpacing:'0.15em', fontWeight:700, padding:'14px 36px', background:'#00F5FF', color:'#000508', border:'none', cursor:'pointer', transition:'all 0.2s', textTransform:'uppercase' }}
-            onMouseEnter={e=>{(e.currentTarget as HTMLButtonElement).style.boxShadow='0 0 30px rgba(0,245,255,0.5)';(e.currentTarget as HTMLButtonElement).style.transform='translateY(-2px)'}}
-            onMouseLeave={e=>{(e.currentTarget as HTMLButtonElement).style.boxShadow='none';(e.currentTarget as HTMLButtonElement).style.transform='translateY(0)'}}>
+        {/* ── CTAs ── */}
+        <div style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
+          <button
+            onClick={() => document.getElementById('capabilities')?.scrollIntoView({behavior:'smooth'})}
+            style={{ fontFamily:'Share Tech Mono,monospace', fontSize:11, letterSpacing:'0.15em', fontWeight:700, padding:'16px 40px', background:'#00F5FF', color:'#000508', border:'none', cursor:'pointer', transition:'all 0.2s', textTransform:'uppercase', boxShadow:'0 0 20px rgba(0,245,255,0.3)' }}>
             [ ENTER SYSTEM ]
           </button>
-          <button onClick={() => document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})} style={{ fontFamily:'Share Tech Mono', fontSize:11, letterSpacing:'0.15em', padding:'14px 36px', background:'transparent', color:'#00FF41', border:'1px solid rgba(0,255,65,0.4)', cursor:'pointer', transition:'all 0.2s' }}
-            onMouseEnter={e=>{(e.currentTarget as HTMLButtonElement).style.boxShadow='0 0 20px rgba(0,255,65,0.2)';(e.currentTarget as HTMLButtonElement).style.borderColor='#00FF41'}}
-            onMouseLeave={e=>{(e.currentTarget as HTMLButtonElement).style.boxShadow='none';(e.currentTarget as HTMLButtonElement).style.borderColor='rgba(0,255,65,0.4)'}}>
+          <button
+            onClick={() => document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})}
+            style={{ fontFamily:'Share Tech Mono,monospace', fontSize:11, letterSpacing:'0.15em', padding:'16px 40px', background:'transparent', color:'#00FF41', border:'1px solid rgba(0,255,65,0.4)', cursor:'pointer', transition:'all 0.2s' }}>
             [ ESTABLISH CONTACT ]
           </button>
         </div>
       </div>
 
-      <div style={{ position:'absolute', bottom:24, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono', fontSize:8, letterSpacing:'0.2em', color:'rgba(0,245,255,0.2)', animation:'flicker 3s infinite' }}>
+      {/* Scroll hint */}
+      <div style={{ position:'absolute', bottom:24, left:'50%', transform:'translateX(-50%)', fontFamily:'Share Tech Mono,monospace', fontSize:8, letterSpacing:'0.2em', color:'rgba(0,245,255,0.2)', zIndex:5, animation:'flicker 3s infinite' }}>
         ▼ SCROLL TO ACCESS INTEL ▼
       </div>
+
+      <style>{`
+        @keyframes scan-bar  { 0%{top:10%}  100%{top:95%} }
+        @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes pulse-dot { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+        @keyframes orbit-spin{ 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        @keyframes flicker   { 0%,100%{opacity:0.2} 50%{opacity:0.5} }
+        @keyframes fade-in-up{ from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+      `}</style>
     </section>
   );
 }
