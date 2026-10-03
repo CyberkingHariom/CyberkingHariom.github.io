@@ -6,7 +6,6 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Progress bar
     let p = 0;
     const pInterval = setInterval(() => {
       p += Math.random() * 4 + 1;
@@ -14,7 +13,6 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
       setProgress(Math.min(p, 100));
     }, 40);
 
-    // Phase transitions
     const t1 = setTimeout(() => setPhase(1), 400);
     const t2 = setTimeout(() => setPhase(2), 1000);
     const t3 = setTimeout(() => setPhase(3), 2000);
@@ -52,7 +50,7 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
       {/* Center content */}
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 24px' }}>
 
-        {/* Cyber ring — no lightning icon */}
+        {/* Cyber ring */}
         <div style={{ position: 'relative', width: 140, height: 140, margin: '0 auto 32px' }}>
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
@@ -79,7 +77,6 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
           </div>
         </div>
 
-        {/* Big title */}
         <div style={{
           fontFamily: 'Orbitron, monospace', fontWeight: 900,
           fontSize: 'clamp(28px, 8vw, 72px)',
@@ -134,10 +131,10 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
         </div>
       </div>
 
-      <style>{\`
+      <style>{`
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
         @keyframes float-particle { 0%,100%{opacity:0.2;transform:translateY(0)} 50%{opacity:0.7;transform:translateY(-8px)} }
-      \`}</style>
+      `}</style>
     </div>
   );
 }
